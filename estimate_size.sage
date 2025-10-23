@@ -9,10 +9,11 @@ k = deg*2        	# degree * dim
 bkz_d = 2*k     	# BKZ dim is degree * dim * 2
 w = 16			# weight of sparse LWE error
 gamma = 2		# rejection parameter
+sigma = 25		# std of LWE error for one-more-MISIS --> one-more-MSIS
 
-n_sigma_0 = 1.5*sqrt(q) *2*sqrt(deg)	# norm of sigma_0
-s = gamma * n_sigma_0 * (1+sqrt(3*w))	# standard deviation of signature
-bound = 2*s*sqrt(deg)			# norm bound one-more Module-ISIS
+n_sigma_0 = 1.5*sqrt(q) *2*sqrt(deg)		# norm of sigma_0
+s = gamma * n_sigma_0 * (1+sqrt(3*w))		# standard deviation of signature
+bound = 2*s*sqrt(deg) + 2*sigma *sqrt(deg)	# norm bound one-more Module-ISIS
 
 # Computing the smallest BKZ block size
 for beta in range(400,700):
@@ -25,8 +26,13 @@ for beta in range(400,700):
 
 print("Signature size:     ",  round(deg*power/8000,2), "KB")
 
-print("LWE hardness:")
+print("sparse LWE hardness:")
 p =  LWE.Parameters(n=k, q=q, Xs=ND.SparseTernary(p=w, m=w), Xe=ND.SparseTernary(p=w/2, m=w/2),m=deg)
+LWE.estimate.rough(p)
+
+# checking that Ax looks indeed uniform in the reduction
+print("LWE hardness for omMISIS --> omMSIS")
+p =  LWE.Parameters(n=deg, q=q, Xs=ND.DiscreteGaussian(sigma), Xe=ND.DiscreteGaussian(sigma),m=deg)
 LWE.estimate.rough(p)
 
 print("\nFor MSIS scheme:\n")
@@ -55,5 +61,4 @@ print("Signature size:     ",  round(deg*power/8000,2), "KB")
 print("LWE hardness:")
 p =  LWE.Parameters(n=k, q=q, Xs=ND.SparseTernary(p=w, m=w), Xe=ND.SparseTernary(p=w/2, m=w/2),m=deg)
 LWE.estimate.rough(p)
-
 
